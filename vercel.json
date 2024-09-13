@@ -1,5 +1,5 @@
 {
-  "regions": ["sfo1"],
+  "regions": ["iad1", "fra1", "sfo1"],
   "rewrites": [
     {
       "source": "/api/(.*)",
