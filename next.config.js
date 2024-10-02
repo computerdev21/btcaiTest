@@ -4,6 +4,7 @@ const nextConfig = {
     domains: [
       "firebasestorage.googleapis.com",
       "oaidalleapiprodscus.blob.core.windows.net",
+      'www.google.com', 'flaticon.com'
     ],
   },
   typescript: {

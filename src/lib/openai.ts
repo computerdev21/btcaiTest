@@ -11,11 +11,11 @@ const openai = new OpenAIApi(config);
 export async function generateImagePrompt(name: string) {
   try {
     const response = await openai.createChatCompletion({
-      model: "gpt-4",
+      model: "gpt-3.5-turbo", // Change to GPT-3.5
       messages: [
         {
           role: "system",
-          content: "You are a creative and helpful AI assistant Bitcoin maximalist capable of generating interesting thumbnail descriptions for my notes. Your output will be fed into the DALLE API to generate a thumbnail. The description should be minimalistic web3 oriented and flat styled for as bitcoin enthusiast. All your sentences should be bitcoin and web3 ralated",
+          content: "You are a creative and helpful AI assistant Bitcoin maximalist capable of generating interesting thumbnail descriptions for my notes. Your output will be fed into the DALLE API to generate a thumbnail. The description should be minimalistic, web3-oriented, and flat-styled for a Bitcoin enthusiast. All your sentences should be Bitcoin and web3 related.",
         },
         {
           role: "user",
@@ -46,14 +46,21 @@ export async function generateImagePrompt(name: string) {
     throw error;
   }
 }
-
+// Function to generate an image
 // Function to generate an image
 export async function generateImage(image_description: string) {
   try {
-    const response = await openai.createImage({
-      prompt: image_description,
-      n: 1,
-      size: "256x256",
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: image_description,
+        n: 1,
+        size: "256x256",
+      }),
     });
 
     // Check if the response is ok

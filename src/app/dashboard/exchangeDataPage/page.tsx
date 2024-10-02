@@ -24,8 +24,8 @@ const ExchangeDataPage = () => {
     }
 
     return (
-        <div className="grainy min-h-screen">
-            <div className="max-w-7xl mx-auto p-10">
+        <div className="grainy min-h-screen" style={{caretColor: 'transparent'}}>
+            <div className="max-w-7xl mx-auto p-10 flex flex-col">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">
                     Spot and Futures Data
                 </h1>
@@ -47,6 +47,8 @@ const ExchangeDataPage = () => {
                         </div>
                     ))}
                 </div>
+                <h1 className="text-3xl font-bold text-gray-900 my-8 flex " >Connect To an exchange</h1>
+                <div className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1">Coinbase</div>
             </div>
         </div>
     );
