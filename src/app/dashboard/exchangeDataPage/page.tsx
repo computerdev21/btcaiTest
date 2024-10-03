@@ -5,6 +5,7 @@ import axios from "axios";
 
 const ExchangeDataPage = () => {
     const [data, setData] = useState<any>(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -18,6 +19,17 @@ const ExchangeDataPage = () => {
 
         fetchData();
     }, []);
+
+    const handleCoinbaseConnect = async () => {
+        try {
+            const response = await axios.get('/api/coinbase');
+            const { authorizationUrl } = response.data;
+            window.location.href = authorizationUrl; // Redirects the user to Coinbase for OAuth
+        } catch (error) {
+            console.error('Error connecting to Coinbase:', error);
+        }
+    };
+
 
     if (!data) {
         return <div>Loading...</div>;
@@ -48,7 +60,12 @@ const ExchangeDataPage = () => {
                     ))}
                 </div>
                 <h1 className="text-3xl font-bold text-gray-900 my-8 flex " >Connect To an exchange</h1>
-                <div className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1">Coinbase</div>
+                <div
+                    className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1"
+                    onClick={handleCoinbaseConnect}
+                >
+                    {loading ? "Connecting..." : "Coinbase"}
+                </div>
             </div>
         </div>
     );
