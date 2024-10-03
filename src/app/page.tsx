@@ -25,9 +25,6 @@ export default function Home() {
               <ArrowRight className="ml-2 w-5 h-5" strokeWidth={3} />
             </Button>
           </Link>
-          <Link href="/dashboard/exchangeDataPage">
-            <Button>Exchange Data <ArrowRight className="ml-2 w-5 h-5" strokeWidth={3} /></Button>
-          </Link>
         </div>
       </div>
     </div>
