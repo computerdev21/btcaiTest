@@ -21,15 +21,16 @@ const ExchangeDataPage = () => {
     }, []);
 
     const handleCoinbaseConnect = async () => {
+        setLoading(true); // Set loading state to true when starting the connection
         try {
-            const response = await axios.get('/api/coinbase');
+            const response = await axios.get('/api/coinbase/connect'); // Correct API endpoint
             const { authorizationUrl } = response.data;
             window.location.href = authorizationUrl; // Redirects the user to Coinbase for OAuth
         } catch (error) {
             console.error('Error connecting to Coinbase:', error);
+            setLoading(false); // If there is an error, reset loading state
         }
     };
-
 
     if (!data) {
         return <div>Loading...</div>;
@@ -59,7 +60,7 @@ const ExchangeDataPage = () => {
                         </div>
                     ))}
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 my-8 flex " >Connect To an exchange</h1>
+                <h1 className="text-3xl font-bold text-gray-900 my-8 flex ">Connect To an exchange</h1>
                 <div
                     className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1"
                     onClick={handleCoinbaseConnect}
