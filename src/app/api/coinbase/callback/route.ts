@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
             },
         });
 
+        console.log(accountResponse.data, accountResponse)
         return NextResponse.json(accountResponse.data);
 
     } catch (error) {
