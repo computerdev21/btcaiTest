@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
             grant_type: 'authorization_code',
             code: code,
             client_id: process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID, // Public-facing client ID
-            client_secret: process.env.COINBASE_CLIENT_SECRET, // Server-side only client secret
+            client_secret: process.env.NEXT_PUBLIC_COINBASE_CLIENT_SECRET, // Server-side only client secret
             redirect_uri: process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI,
         });
 
