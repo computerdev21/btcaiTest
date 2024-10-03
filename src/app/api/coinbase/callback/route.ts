@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 
-// Handle the /api/coinbase/callback GET request
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    const code = searchParams.get('code'); // Get the authorization code from the URL
+    const code = searchParams.get('code'); // Get the authorization code
 
     if (!code) {
         return new NextResponse('Authorization code missing', { status: 400 });
     }
 
     try {
-        // Log the values being sent to Coinbase
-        console.log('Authorization code:', code);
-        console.log('Client ID:', process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID);
-        console.log('Redirect URI:', process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI);
-        console.log(process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID)
-
         const tokenResponse = await axios.post('https://api.coinbase.com/oauth/token', {
             grant_type: 'authorization_code',
             code: code,
@@ -25,21 +18,13 @@ export async function GET(req: NextRequest) {
             redirect_uri: process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI,
         });
 
-        const { access_token, refresh_token } = tokenResponse.data;
+        const { access_token } = tokenResponse.data;
 
-        // Log access and refresh tokens
-        console.log('Access Token:', access_token);
-        console.log('Refresh Token:', refresh_token);
+        // Store the access token in a cookie (alternatively, you can store it in a session or database)
+        const response = NextResponse.redirect('/'); // Redirect to the home page or reload
+        response.cookies.set('coinbase_access_token', access_token, { httpOnly: true, path: '/' }); // Set token in cookie
 
-        // Fetch the user's account data using the access token
-        const accountResponse = await axios.get('https://api.coinbase.com/v2/accounts', {
-            headers: {
-                Authorization: `Bearer ${access_token}`,
-            },
-        });
-
-        console.log(accountResponse.data, accountResponse)
-        return NextResponse.json(accountResponse.data);
+        return response;
 
     } catch (error) {
         if (axios.isAxiosError(error)) {

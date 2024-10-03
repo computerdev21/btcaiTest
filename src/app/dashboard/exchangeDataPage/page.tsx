@@ -2,11 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Cookies from 'js-cookie'; // Use js-cookie for handling cookies
 
 const ExchangeDataPage = () => {
     const [data, setData] = useState<any>(null);
+    const [coinbaseData, setCoinbaseData] = useState<any>(null); // Store Coinbase data
     const [loading, setLoading] = useState(false);
 
+    // Fetch the exchange data
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -18,6 +21,27 @@ const ExchangeDataPage = () => {
         };
 
         fetchData();
+    }, []);
+
+    // Fetch the Coinbase data if the user is connected
+    useEffect(() => {
+        const fetchCoinbaseData = async () => {
+            const accessToken = Cookies.get('coinbase_access_token'); // Get the Coinbase access token from the cookie
+            if (accessToken) {
+                try {
+                    const response = await axios.get('https://api.coinbase.com/v2/accounts', {
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`,
+                        },
+                    });
+                    setCoinbaseData(response.data); // Set the Coinbase data
+                } catch (error) {
+                    console.error("Error fetching Coinbase data:", error);
+                }
+            }
+        };
+
+        fetchCoinbaseData();
     }, []);
 
     const handleCoinbaseConnect = async () => {
@@ -33,7 +57,7 @@ const ExchangeDataPage = () => {
     };
 
     if (!data) {
-        return <div>Loading...</div>;
+        return <div>Loading exchange data...</div>;
     }
 
     return (
@@ -60,7 +84,16 @@ const ExchangeDataPage = () => {
                         </div>
                     ))}
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 my-8 flex ">Connect To an exchange</h1>
+
+                {/* Display Coinbase data if available */}
+                {coinbaseData && (
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900 my-8">Coinbase Account Data</h1>
+                        <pre>{JSON.stringify(coinbaseData, null, 2)}</pre>
+                    </div>
+                )}
+
+                <h1 className="text-3xl font-bold text-gray-900 my-8 flex">Connect To an exchange</h1>
                 <div
                     className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1"
                     onClick={handleCoinbaseConnect}
