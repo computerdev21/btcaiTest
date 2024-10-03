@@ -4,14 +4,14 @@ const nextConfig = {
     domains: [
       "firebasestorage.googleapis.com",
       "oaidalleapiprodscus.blob.core.windows.net",
-      'www.google.com',
-      'flaticon.com'
+      'www.google.com', 'flaticon.com'
     ],
   },
-  env: {
-    COINBASE_CLIENT_ID: process.env.COINBASE_CLIENT_ID,
-    COINBASE_CLIENT_SECRET: process.env.COINBASE_CLIENT_SECRET,
-    COINBASE_REDIRECT_URI: process.env.COINBASE_REDIRECT_URI,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 

@@ -3,9 +3,10 @@ import axios from 'axios';
 
 // GET /api/coinbase/connect
 export async function GET(req: NextRequest) {
-    const clientId = process.env.COINBASE_CLIENT_ID;
-    const redirectUri = process.env.COINBASE_REDIRECT_URI;
+    const clientId = process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID;
+    const redirectUri = process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI;
     const scope = 'wallet:accounts:read,wallet:transactions:read';
+    console.log(clientId);
 
     const authorizationUrl = `https://www.coinbase.com/oauth/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}`;
 
@@ -22,9 +23,9 @@ export async function POST(req: NextRequest) {
         const response = await axios.post('https://api.coinbase.com/oauth/token', {
             grant_type: 'authorization_code',
             code: code,
-            client_id: process.env.COINBASE_CLIENT_ID,
-            client_secret: process.env.COINBASE_CLIENT_SECRET,
-            redirect_uri: process.env.COINBASE_REDIRECT_URI,
+            client_id: process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID,
+            client_secret: process.env.NEXT_PUBLIC_COINBASE_CLIENT_SECRET,
+            redirect_uri: process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI,
         });
 
         const { access_token, refresh_token } = response.data;
