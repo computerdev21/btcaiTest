@@ -17,14 +17,18 @@ export async function GET(req: NextRequest) {
 // POST /api/coinbase/callback
 export async function POST(req: NextRequest) {
     const { searchParams } = new URL(req.url);
-    const code = searchParams.get('code'); // Get the authorization code from the query
+    const code = searchParams.get('code');
 
     if (!code) {
         return new NextResponse('No authorization code provided', { status: 400 });
     }
 
     try {
-        // Attempt to exchange the authorization code for an access token
+        // Log the values being sent to Coinbase
+        console.log('Authorization code:', code);
+        console.log('Client ID:', process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID);
+        console.log('Redirect URI:', process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI);
+
         const tokenResponse = await axios.post('https://api.coinbase.com/oauth/token', {
             grant_type: 'authorization_code',
             code: code,
@@ -35,6 +39,10 @@ export async function POST(req: NextRequest) {
 
         const { access_token, refresh_token } = tokenResponse.data;
 
+        // Log access and refresh tokens
+        console.log('Access Token:', access_token);
+        console.log('Refresh Token:', refresh_token);
+
         // Use the access token to fetch user account data from Coinbase
         const accountResponse = await axios.get('https://api.coinbase.com/v2/accounts', {
             headers: {
@@ -42,21 +50,15 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        // Respond with the user's account data
         return NextResponse.json(accountResponse.data);
 
     } catch (error) {
-        // Type assert error as AxiosError
-        const axiosError = error as AxiosError;
-
-        // Log the exact error response from Coinbase
-        if (axiosError.response) {
-            console.error("Error response from Coinbase:", axiosError.response.data);
+        if (axios.isAxiosError(error)) {
+            console.error("Error response from Coinbase:", error.response?.data || error.message);
         } else {
-            console.error("Error message:", axiosError.message);
+            console.error("Unknown error:", error);
         }
 
-        // Return a generic error response
         return new NextResponse('OAuth token exchange failed', { status: 401 });
     }
 }
