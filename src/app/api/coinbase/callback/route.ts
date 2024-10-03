@@ -15,12 +15,13 @@ export async function GET(req: NextRequest) {
         console.log('Authorization code:', code);
         console.log('Client ID:', process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID);
         console.log('Redirect URI:', process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI);
+        console.log(process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID)
 
         const tokenResponse = await axios.post('https://api.coinbase.com/oauth/token', {
             grant_type: 'authorization_code',
             code: code,
             client_id: process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID,
-            client_secret: process.env.COINBASE_CLIENT_SECRET,
+            client_secret: process.env.NEXT_PUBLIC_COINBASE_CLIENT_SECRET,
             redirect_uri: process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI,
         });
 
