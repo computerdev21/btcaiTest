@@ -19,8 +19,8 @@ export async function GET(req: NextRequest) {
         const tokenResponse = await axios.post('https://api.coinbase.com/oauth/token', {
             grant_type: 'authorization_code',
             code: code,
-            client_id: process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID, // Public-facing client ID
-            client_secret: process.env.NEXT_PUBLIC_COINBASE_CLIENT_SECRET, // Server-side only client secret
+            client_id: process.env.NEXT_PUBLIC_COINBASE_CLIENT_ID,
+            client_secret: process.env.COINBASE_CLIENT_SECRET,
             redirect_uri: process.env.NEXT_PUBLIC_COINBASE_REDIRECT_URI,
         });
 
