@@ -9,6 +9,7 @@ const ExchangeDataPage = () => {
     const [loading, setLoading] = useState(false);
     const [apiKey, setApiKey] = useState<string>(''); // Store API Key
     const [apiSecret, setApiSecret] = useState<string>(''); // Store API Secret
+    const [userId, setUserId] = useState<string>('user-123'); // Hardcoded userId for now
 
     // Fetch the exchange data
     useEffect(() => {
@@ -24,15 +25,58 @@ const ExchangeDataPage = () => {
         fetchData();
     }, []);
 
+    // Check if API secrets exist in the backend and fetch data automatically
+    useEffect(() => {
+        const checkAndFetchCoinbaseData = async () => {
+            try {
+                // Fetch API secrets for the current user
+                const response = await axios.get(`/api/coinbase/getSecrets?userId=${userId}`);
+                const { apiKey, apiSecret } = response.data;
+
+                // If API secrets exist, use them to fetch Coinbase data automatically
+                if (apiKey && apiSecret) {
+                    setApiKey(apiKey);
+                    setApiSecret(apiSecret);
+                    await handleCoinbaseData(apiKey, apiSecret);
+                }
+            } catch (error) {
+                console.error("Error fetching saved API secrets:", error);
+            }
+        };
+
+        checkAndFetchCoinbaseData();
+    }, [userId]);
+
+
+    // Function to save API secrets to the backend
+    const saveExchangeSecrets = async (apiKey: string, apiSecret: string) => {
+        try {
+            await axios.post("/api/coinbase/saveSecrets", {
+                userId,
+                apiKey,
+                apiSecret,
+            });
+            console.log("Secrets saved successfully!");
+        } catch (error) {
+            console.error("Error saving API secrets:", error);
+        }
+    };
+
     // Fetch Coinbase data using the API key and secret provided by the user
-    const handleCoinbaseData = async () => {
+    const handleCoinbaseData = async (providedApiKey?: string, providedApiSecret?: string) => {
         setLoading(true);
+        const key = providedApiKey || apiKey;
+        const secret = providedApiSecret || apiSecret;
+
         try {
             const response = await axios.post('/api/coinbase/connect-api', {
-                apiKey: apiKey,        // API Key entered by the user
-                apiSecret: apiSecret    // API Secret entered by the user
+                apiKey: key,        // API Key entered by the user
+                apiSecret: secret    // API Secret entered by the user
             });
             setCoinbaseData(response.data); // Set Coinbase data
+
+            // Save the API key and secret to the backend
+            await saveExchangeSecrets(key, secret);
         } catch (error) {
             console.error("Error fetching Coinbase data:", error);
         } finally {
@@ -114,7 +158,7 @@ const ExchangeDataPage = () => {
                         className="border p-2 mb-4 w-full"
                     />
                     <button
-                        onClick={handleCoinbaseData}
+                        onClick={() => handleCoinbaseData()}
                         className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1"
                     >
                         {loading ? "Fetching Coinbase Data..." : "Fetch Coinbase Data"}
