@@ -2,12 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import Cookies from 'js-cookie'; // Use js-cookie for handling cookies
 
 const ExchangeDataPage = () => {
     const [data, setData] = useState<any>(null);
     const [coinbaseData, setCoinbaseData] = useState<any>(null); // Store Coinbase data
     const [loading, setLoading] = useState(false);
+    const [apiKey, setApiKey] = useState<string>(''); // Store API Key
+    const [apiSecret, setApiSecret] = useState<string>(''); // Store API Secret
 
     // Fetch the exchange data
     useEffect(() => {
@@ -23,37 +24,46 @@ const ExchangeDataPage = () => {
         fetchData();
     }, []);
 
-    // Fetch the Coinbase data if the user is connected
-    useEffect(() => {
-        const fetchCoinbaseData = async () => {
-            const accessToken = Cookies.get('coinbase_access_token'); // Get the Coinbase access token from the cookie
-            if (accessToken) {
-                try {
-                    const response = await axios.get('https://api.coinbase.com/v2/accounts', {
-                        headers: {
-                            Authorization: `Bearer ${accessToken}`,
-                        },
-                    });
-                    setCoinbaseData(response.data); // Set the Coinbase data
-                } catch (error) {
-                    console.error("Error fetching Coinbase data:", error);
-                }
-            }
-        };
-
-        fetchCoinbaseData();
-    }, []);
-
-    const handleCoinbaseConnect = async () => {
-        setLoading(true); // Set loading state to true when starting the connection
+    // Fetch Coinbase data using the API key and secret provided by the user
+    const handleCoinbaseData = async () => {
+        setLoading(true);
         try {
-            const response = await axios.get('/api/coinbase/connect'); // Correct API endpoint
-            const { authorizationUrl } = response.data;
-            window.location.href = authorizationUrl; // Redirects the user to Coinbase for OAuth
+            const response = await axios.post('/api/coinbase/connect-api', {
+                apiKey: apiKey,        // API Key entered by the user
+                apiSecret: apiSecret    // API Secret entered by the user
+            });
+            setCoinbaseData(response.data); // Set Coinbase data
         } catch (error) {
-            console.error('Error connecting to Coinbase:', error);
-            setLoading(false); // If there is an error, reset loading state
+            console.error("Error fetching Coinbase data:", error);
+        } finally {
+            setLoading(false);
         }
+    };
+
+    // Helper function to format and display Coinbase account data
+    const renderCoinbaseAccounts = () => {
+        return coinbaseData?.accounts.map((account: any) => (
+            <div
+                key={account.uuid}
+                className="border border-stone-300 rounded-lg p-4 flex flex-col hover:shadow-xl transition hover:-translate-y-1 mb-4"
+            >
+                <h2 className="text-xl font-semibold text-gray-900">
+                    {account.name} ({account.currency})
+                </h2>
+                <p className="text-sm text-gray-500">
+                    Available Balance: {account.available_balance.value} {account.available_balance.currency}
+                </p>
+                <p className="text-sm text-gray-500">
+                    Type: {account.type.replace('ACCOUNT_TYPE_', '')}
+                </p>
+                <p className="text-sm text-gray-500">
+                    Status: {account.active ? 'Active' : 'Inactive'} / {account.ready ? 'Ready' : 'Not Ready'}
+                </p>
+                <p className="text-sm text-gray-500">
+                    Created At: {new Date(account.created_at).toLocaleString()}
+                </p>
+            </div>
+        ));
     };
 
     if (!data) {
@@ -66,6 +76,7 @@ const ExchangeDataPage = () => {
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">
                     Spot and Futures Data
                 </h1>
+                {/* Exchange data section */}
                 <div className="grid sm:grid-cols-2 md:grid-cols-3 grid-cols-1 gap-6">
                     {data.map((exchange: any) => (
                         <div
@@ -85,21 +96,38 @@ const ExchangeDataPage = () => {
                     ))}
                 </div>
 
+                {/* Input fields for API Key and Secret */}
+                <div className="my-6">
+                    <h1 className="text-2xl font-bold text-gray-900">Enter Coinbase API Credentials</h1>
+                    <input
+                        type="text"
+                        placeholder="API Key"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        className="border p-2 mb-4 w-full"
+                    />
+                    <input
+                        type="password"
+                        placeholder="API Secret"
+                        value={apiSecret}
+                        onChange={(e) => setApiSecret(e.target.value)}
+                        className="border p-2 mb-4 w-full"
+                    />
+                    <button
+                        onClick={handleCoinbaseData}
+                        className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1"
+                    >
+                        {loading ? "Fetching Coinbase Data..." : "Fetch Coinbase Data"}
+                    </button>
+                </div>
+
                 {/* Display Coinbase data if available */}
                 {coinbaseData && (
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 my-8">Coinbase Account Data</h1>
-                        <pre>{JSON.stringify(coinbaseData, null, 2)}</pre>
+                        <div>{renderCoinbaseAccounts()}</div>
                     </div>
                 )}
-
-                <h1 className="text-3xl font-bold text-gray-900 my-8 flex">Connect To an exchange</h1>
-                <div
-                    className="cursor-pointer text-lg font-bold border-2 border-solid border-black w-1/3 text-center hover:shadow-xl transition hover:-translate-y-1"
-                    onClick={handleCoinbaseConnect}
-                >
-                    {loading ? "Connecting..." : "Coinbase"}
-                </div>
             </div>
         </div>
     );
